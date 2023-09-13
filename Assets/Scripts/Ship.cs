@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class Ship : MonoBehaviour
 {
+    // Particle related
     ParticleSystem engineExhaust;
-    float engineExhaustBuffer = 0f;
+    ParticleSystem velocityDamperEnergyField;
+    float particleBuffer = 0f;
+
     float rotationSpeed = 360f;
     float acceleration = 10f;
     // float terminalVelocity = 6f;
@@ -116,6 +119,14 @@ public class Ship : MonoBehaviour
         // TODO: account for terminal velocity
     }
 
+    void DamperVelocity(float delta) {
+        float vel = velocity - acceleration * delta;
+        if (vel < 0) {
+            vel = 0;
+        }
+        Velocity = vel;
+    }
+
     public void AdvancePosition(float delta) {
         xPosition += xVelocity * delta;
         yPosition += yVelocity * delta;
@@ -135,7 +146,8 @@ public class Ship : MonoBehaviour
     }
 
     void Start() {
-        engineExhaust = GetComponent<ParticleSystem>();
+        engineExhaust = GameObject.Find("Thruster").GetComponent<ParticleSystem>();
+        velocityDamperEnergyField = GameObject.Find("Damper").GetComponent<ParticleSystem>();
     }
 
     void Update() {
@@ -147,20 +159,20 @@ public class Ship : MonoBehaviour
             Direction -= rotationSpeed * delta;
         }
         if (Input.GetKey(KeyCode.W)) {
-            engineExhaustBuffer += delta;
-            if (engineExhaustBuffer > 0.05) {
+            particleBuffer += delta;
+            if (particleBuffer > 0.05) {
                 engineExhaust.Emit(10);
-                engineExhaustBuffer -= 0.05f;
+                particleBuffer -= 0.05f;
             }
             ApplyThrust(delta);
         }
-        // if (Input.GetKey(KeyCode.S)) {
-        //     engineExhaustBuffer += delta;
-        //     if (engineExhaustBuffer > 0.05) {
-        //         engineExhaust.Emit(10);
-        //         engineExhaustBuffer -= 0.05f;
-        //     }
-        //     ApplyThrust(delta);
-        // }
+        if (Input.GetKey(KeyCode.S)) {
+            particleBuffer += delta;
+            if (particleBuffer > 0.05) {
+                velocityDamperEnergyField.Emit(50);
+                particleBuffer -= 0.05f;
+            }
+            DamperVelocity(delta);
+        }
     }
 }
