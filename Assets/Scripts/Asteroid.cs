@@ -94,6 +94,7 @@ public class Asteroid : MonoBehaviour {
         }
         set {
             xVelocity = value;
+            UpdatePolarVectorFromComponentVelocities();
         }
     }
 
@@ -104,6 +105,7 @@ public class Asteroid : MonoBehaviour {
         }
         set {
             yVelocity = value;
+            UpdatePolarVectorFromComponentVelocities();
         }
     }
 
@@ -115,6 +117,17 @@ public class Asteroid : MonoBehaviour {
         set {
             size = value;
             transform.localScale = new Vector3(size, size, 1f);
+            ParticleSystem trail = GetComponent<ParticleSystem>();
+            ParticleSystem.MainModule mainModule = trail.main;
+            mainModule.startSize = (1 / size) * 0.01f;
+            mass = (4f / 3f) * Mathf.PI * Mathf.Pow((size * 100f), 3);
+        }
+    }
+
+    float mass;
+    public float Mass {
+        get {
+            return mass;
         }
     }
 
@@ -134,6 +147,11 @@ public class Asteroid : MonoBehaviour {
         yVelocity = Mathf.Sin(trajectory * Mathf.Deg2Rad) * velocity;
     }
 
+    void UpdatePolarVectorFromComponentVelocities() {
+        trajectory = Mathf.Atan2(YVelocity, XVelocity) * Mathf.Rad2Deg;
+        velocity = Mathf.Sqrt(Mathf.Pow(xVelocity, 2) + Mathf.Pow(yVelocity, 2));
+    }
+
     public void AdvancePosition(float delta) {
         xPosition += xVelocity * delta;
         yPosition += yVelocity * delta;
@@ -143,8 +161,27 @@ public class Asteroid : MonoBehaviour {
         transform.position = position;
     }
 
+    public void ToggleParticleTrail(bool active) {
+        ParticleSystem trail = GetComponent<ParticleSystem>();
+        if (active) {
+            trail.Play();
+        } else {
+            trail.Stop();
+        }
+    }
+
+    public void Destruct() {
+        Destroy(gameObject);
+    }
+
+    public bool isCollidingWith(Asteroid other, float sizeCoefficient) {
+        float distance = Mathf.Sqrt(Mathf.Pow(other.xPosition - this.xPosition, 2) + Mathf.Pow(other.yPosition - this.yPosition, 2));
+        float radii = (this.size + other.size) / 2f * sizeCoefficient;
+        return distance < radii;
+    }
+
     // Constructor
-    public Asteroid(int initialValue)
+    public Asteroid()
     {
         elapsedTime = 0;
         frame = 0;
@@ -158,17 +195,16 @@ public class Asteroid : MonoBehaviour {
         rotation = 0;
     }
 
-    void Start()
-    {
+    void Start() {
         spriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
+        spriteRenderer.sortingOrder = -10;
         Main script = GameObject.Find("Game").GetComponent<Main>();
         spriteListA = script.asteroidSpriteListA;
         spriteListB = script.asteroidSpriteListB;
         spriteRenderer.sprite = spriteListA[frame];
     }
     
-    void Update()
-    {
+    void Update() {
         float frameDuration = 1.0f / (float)framesPerSecond;
         elapsedTime += Time.deltaTime;
         if (elapsedTime >= frameDuration) {
@@ -184,4 +220,6 @@ public class Asteroid : MonoBehaviour {
             }
         }
     }
+
+    
 }
