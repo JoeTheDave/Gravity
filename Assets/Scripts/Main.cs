@@ -8,12 +8,18 @@ public class Main : MonoBehaviour
     [SerializeField] GameObject asteroidPrefab;
     [SerializeField] GameObject playerShipPrefab;
     [SerializeField] bool debug;
-    [SerializeField] int numberOfAsteroids;
 
+    // Asteroid field specs
+    [SerializeField] int numberOfAsteroids;
+    [SerializeField] float asteroidSpawnRadius;
+    [SerializeField] float asteroidDestructionRadius;
+
+    // Asteroid sprite animation
     public List<Sprite> asteroidSpriteListA;
     public List<Sprite> asteroidSpriteListB;
-
     Texture2D asteroidTexture;
+
+    // Game Objects
     List<Asteroid> asteroids;
     Ship playerShip;
 
@@ -38,51 +44,37 @@ public class Main : MonoBehaviour
     }
 
     void CreateAsteroid() {
-        Asteroid asteroid = Instantiate(asteroidPrefab).GetComponent<Asteroid>();
-        asteroid.FramesPerSecond = Random.Range(8, 33);
-        asteroid.AnimationType = Random.Range(0, 2);
-
-        bool isConflictingLocation;
-        do {
-            isConflictingLocation = false;
-            int startSituation = Random.Range(0, 4);
-            if (startSituation == 0) {
-                // Top
-                asteroid.XPosition = Random.Range(-15f, 15f);
-                asteroid.YPosition = 15f;
-            }
-            if (startSituation == 1) {
-                // Right
-                asteroid.XPosition = 15f;
-                asteroid.YPosition = Random.Range(-15f, 15f);
-            }
-            if (startSituation == 2) {
-                // Bottom
-                asteroid.XPosition = Random.Range(-15f, 15f);
-                asteroid.YPosition = -15f;
-            }
-            if (startSituation == 3) {
-                // Left
-                asteroid.XPosition = -15f;
-                asteroid.YPosition = Random.Range(-15f, 15f);
-            }
+        Asteroid asteroid = null;
+        for (int i = 0; i < 10; i++) {
+            float originAngle = Random.Range(0f, 360f);
+            float x = playerShip.XPosition + Mathf.Cos(originAngle * Mathf.Deg2Rad) * asteroidSpawnRadius;
+            float y = playerShip.YPosition + Mathf.Sin(originAngle * Mathf.Deg2Rad) * asteroidSpawnRadius;
+            bool isConflictingLocation = false;
             foreach(Asteroid ast in asteroids) {
-                if (asteroid.isCollidingWith(ast, 2f)) {
+                if (ast.DistanceFrom(x, y) < 3f) {
                     isConflictingLocation = true;
                     break;
                 }
             }
-        } while (isConflictingLocation);
+            if (!isConflictingLocation) {
+                asteroid = Instantiate(asteroidPrefab).GetComponent<Asteroid>();
+                asteroid.XPosition = x;
+                asteroid.YPosition = y;
+                break;
+            }
+        }
+        if (asteroid != null) {
+            asteroid.FramesPerSecond = Random.Range(8, 33);
+            asteroid.AnimationType = Random.Range(0, 2);
 
-        float direction = Mathf.Atan2(asteroid.YPosition, asteroid.XPosition) * Mathf.Rad2Deg + 180;
-        asteroid.Trajectory = Random.Range(direction - 30, direction + 30);
-        asteroid.Velocity = Random.Range(0.5f, 4f);
-
-        asteroid.Size = Random.Range(0.25f, 2f);
-        asteroid.Rotation = Random.Range(-45f, 45f);
-        asteroid.ToggleParticleTrail(debug);
-
-        asteroids.Add(asteroid);
+            float direction = Mathf.Atan2(asteroid.YPosition, asteroid.XPosition) * Mathf.Rad2Deg + 180;
+            asteroid.Trajectory = Random.Range(direction - 30, direction + 30);
+            asteroid.Velocity = Random.Range(0.5f, 4f);
+            asteroid.Size = Random.Range(0.25f, 2f);
+            asteroid.Rotation = Random.Range(-45f, 45f);
+            asteroid.ToggleParticleTrail(debug);
+            asteroids.Add(asteroid);
+        }
     }
 
     void Start()
@@ -93,19 +85,6 @@ public class Main : MonoBehaviour
         for (int i = 0; i < numberOfAsteroids; i++) {
             CreateAsteroid();
         }
-        // CreateAsteroid();
-        // CreateAsteroid();
-        // asteroids[0].XPosition = -3f;
-        // asteroids[0].YPosition = -3f;
-        // asteroids[0].Size = 0.75f;
-        // asteroids[0].Trajectory = 40f;
-        // asteroids[0].Velocity = 0.5f;
-
-        // asteroids[1].XPosition = 2f;
-        // asteroids[1].YPosition = 5f;
-        // asteroids[1].Size = 0.75f;
-        // asteroids[1].Trajectory = 250f;
-        // asteroids[1].Velocity = 0.7f;
     }
 
     float[] Rotate(float[] v, float theta) {
@@ -121,12 +100,12 @@ public class Main : MonoBehaviour
 
         // Advance Game objects
         float delta = Time.deltaTime;
+
         List<Asteroid> destroyedAsteroids = new List<Asteroid>();
         foreach(Asteroid ast in asteroids) {
             ast.AdvancePosition(delta);
-            if (ast.XPosition > 15 || ast.XPosition < -15 || ast.YPosition > 15 || ast.YPosition < -15) {
+            if (ast.DistanceFrom(playerShip) > asteroidDestructionRadius) {
                 destroyedAsteroids.Add(ast);
-                
             }
         }
         foreach(Asteroid ast in destroyedAsteroids) {
@@ -155,7 +134,5 @@ public class Main : MonoBehaviour
                 }
             }
         }
-
-        
     }
 }

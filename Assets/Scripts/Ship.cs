@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ship : MonoBehaviour
+public class Ship : MonoBehaviour, ICollidable
 {
     // Particle related
     ParticleSystem engineExhaust;
@@ -83,10 +83,23 @@ public class Ship : MonoBehaviour
         }
     }
 
+    float size = 1f;
+    public float Size {
+        get {
+            return size;
+        }
+        set {
+            size = value;
+        }
+    }
+
     float mass = 10000f;
     public float Mass {
         get {
             return mass;
+        }
+        set {
+            mass = value;
         }
     }
 
@@ -134,6 +147,20 @@ public class Ship : MonoBehaviour
         position.x = xPosition;
         position.y = yPosition;
         transform.position = position;
+    }
+
+    public float DistanceFrom(ICollidable other) {
+        return Mathf.Sqrt(Mathf.Pow(other.XPosition - this.XPosition, 2) + Mathf.Pow(other.YPosition - this.YPosition, 2));
+    }
+
+    public float DistanceFrom(float x, float y) {
+        return Mathf.Sqrt(Mathf.Pow(x - this.XPosition, 2) + Mathf.Pow(y - this.YPosition, 2));        
+    }
+
+    public bool isCollidingWith(ICollidable other, float sizeCoefficient) {
+        float distance = DistanceFrom(other);
+        float radii = (this.Size + other.Size) / 2f * sizeCoefficient;
+        return distance < radii;
     }
 
     // Constructor

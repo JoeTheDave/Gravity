@@ -276,7 +276,9 @@ MonoBehaviour:
   asteroidPrefab: {fileID: 7387573917499035358, guid: fc929685f78de134eaa794ede24c7c52, type: 3}
   playerShipPrefab: {fileID: 9171507295867371379, guid: d3b56697a6991b14ea054fc34181c9df, type: 3}
   debug: 0
-  numberOfAsteroids: 20
+  numberOfAsteroids: 50
+  asteroidSpawnRadius: 30
+  asteroidDestructionRadius: 40
   asteroidSpriteListA: []
   asteroidSpriteListB: []
 --- !u!1660057539 &9223372036854775807

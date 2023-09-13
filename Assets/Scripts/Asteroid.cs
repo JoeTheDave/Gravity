@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Asteroid : MonoBehaviour {
+public class Asteroid : MonoBehaviour, ICollidable {
 
     SpriteRenderer spriteRenderer;
     List<Sprite> spriteListA;
@@ -129,6 +129,9 @@ public class Asteroid : MonoBehaviour {
         get {
             return mass;
         }
+        set {
+            mass = value;
+        }
     }
 
     float rotation;
@@ -174,9 +177,17 @@ public class Asteroid : MonoBehaviour {
         Destroy(gameObject);
     }
 
-    public bool isCollidingWith(Asteroid other, float sizeCoefficient) {
-        float distance = Mathf.Sqrt(Mathf.Pow(other.xPosition - this.xPosition, 2) + Mathf.Pow(other.yPosition - this.yPosition, 2));
-        float radii = (this.size + other.size) / 2f * sizeCoefficient;
+    public float DistanceFrom(ICollidable other) {
+        return Mathf.Sqrt(Mathf.Pow(other.XPosition - this.XPosition, 2) + Mathf.Pow(other.YPosition - this.YPosition, 2));
+    }
+
+    public float DistanceFrom(float x, float y) {
+        return Mathf.Sqrt(Mathf.Pow(x - this.XPosition, 2) + Mathf.Pow(y - this.YPosition, 2));        
+    }
+
+    public bool isCollidingWith(ICollidable other, float sizeCoefficient) {
+        float distance = DistanceFrom(other);
+        float radii = (this.Size + other.Size) / 2f * sizeCoefficient;
         return distance < radii;
     }
 
