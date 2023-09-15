@@ -201,5 +201,8 @@ public class Ship : MonoBehaviour, ICollidable
             }
             DamperVelocity(delta);
         }
+        if (Input.GetKey(KeyCode.Space)) {
+            Debug.Log("Fire Weapon");
+        }
     }
 }

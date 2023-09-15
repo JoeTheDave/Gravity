@@ -2,41 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Asteroid : MonoBehaviour, ICollidable {
-
-    SpriteRenderer spriteRenderer;
-    float elapsedTime;
-    
-    int frame;
-    public int Frame {
-        get {
-            return frame;
-        }
-        set {
-            frame = value;
-        }
-    }
-
-    int framesPerSecond;
-    public int FramesPerSecond {
-        get {
-            return framesPerSecond;
-        }
-        set {
-            framesPerSecond = value;
-        }
-    }
-
-    int animationType;
-    public int AnimationType {
-        get {
-            return animationType;
-        }
-        set {
-            animationType = value;
-        }
-    }
-
+public class Bullet : MonoBehaviour, ICollidable
+{
     float xPosition;
     public float XPosition {
         get {
@@ -107,39 +74,23 @@ public class Asteroid : MonoBehaviour, ICollidable {
         }
     }
 
-    float size;
+    float size = 1f;
     public float Size {
         get {
             return size;
         }
         set {
             size = value;
-            transform.localScale = new Vector3(size, size, 1f);
-            ParticleSystem trail = GetComponent<ParticleSystem>();
-            ParticleSystem.MainModule mainModule = trail.main;
-            mainModule.startSize = (1 / size) * 0.01f;
-            mass = (4f / 3f) * Mathf.PI * Mathf.Pow((size * 100f), 3);
         }
     }
 
-    float mass;
+    float mass = 500f;
     public float Mass {
         get {
             return mass;
         }
         set {
             mass = value;
-        }
-    }
-
-    float rotation;
-    public float Rotation {
-        get {
-            return rotation;
-        }
-        set {
-            rotation = value;
-            transform.localEulerAngles = new Vector3(1f, 1f, rotation);
         }
     }
 
@@ -162,19 +113,6 @@ public class Asteroid : MonoBehaviour, ICollidable {
         transform.position = position;
     }
 
-    public void ToggleParticleTrail(bool active) {
-        ParticleSystem trail = GetComponent<ParticleSystem>();
-        if (active) {
-            trail.Play();
-        } else {
-            trail.Stop();
-        }
-    }
-
-    public void Destruct() {
-        Destroy(gameObject);
-    }
-
     public float DistanceFrom(ICollidable other) {
         return Mathf.Sqrt(Mathf.Pow(other.XPosition - this.XPosition, 2) + Mathf.Pow(other.YPosition - this.YPosition, 2));
     }
@@ -189,43 +127,6 @@ public class Asteroid : MonoBehaviour, ICollidable {
         return distance < radii;
     }
 
-    // Constructor
-    public Asteroid()
-    {
-        elapsedTime = 0;
-        frame = 0;
-        framesPerSecond = 16;
-        animationType = 0;
-        velocity = 0;
-        trajectory = 0;
-        xVelocity = 0;
-        yVelocity = 0;
-        size = 1;
-        rotation = 0;
-    }
-
-    void Start() {
-        spriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
-        spriteRenderer.sortingOrder = -10;
-        spriteRenderer.sprite = GameData.Instance.AsteroidSpriteListA[frame];
-    }
-    
-    void Update() {
-        float frameDuration = 1.0f / (float)framesPerSecond;
-        elapsedTime += Time.deltaTime;
-        if (elapsedTime >= frameDuration) {
-            elapsedTime -= frameDuration;
-            frame++;
-            if (frame > 30) {
-                frame = 0;
-            }
-            if (animationType == 0) {
-                spriteRenderer.sprite = GameData.Instance.AsteroidSpriteListA[frame];
-            } else {
-                spriteRenderer.sprite = GameData.Instance.AsteroidSpriteListB[frame];
-            }
-        }
-    }
-
-    
+    void Start() { }
+    void Update() { }
 }
