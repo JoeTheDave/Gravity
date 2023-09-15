@@ -55,7 +55,7 @@ public class Ship : Collidable {
 
     void Awake() {
         Velocity = 0f;
-        Trajectory = 0f;
+        Direction = 90f;
         XVelocity = 0f;
         YVelocity = 0f;
     }

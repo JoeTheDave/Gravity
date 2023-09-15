@@ -20,6 +20,7 @@ public class CameraFollow : MonoBehaviour
             Vector3 desiredPosition = target.position + new Vector3(0, 0, -10);
             Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
             transform.position = smoothedPosition;
+            // transform.rotation = target.rotation * Quaternion.Euler(new Vector3(0, 0, -90));
         }
     }
 }
