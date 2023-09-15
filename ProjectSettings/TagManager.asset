@@ -38,6 +38,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 1829515955
+    locked: 0
   - name: Debug
     uniqueID: 4069118413
     locked: 0

@@ -272,11 +272,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4b95e8f09c9df34cbb9699116d39581, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debug: 0
   asteroidSpriteMap: {fileID: 21300000, guid: 095c02cf0d32b95409e9500d4f8dfae8, type: 3}
   asteroidPrefab: {fileID: 7387573917499035358, guid: fc929685f78de134eaa794ede24c7c52, type: 3}
   playerShipPrefab: {fileID: 9171507295867371379, guid: d3b56697a6991b14ea054fc34181c9df, type: 3}
-  debug: 0
-  numberOfAsteroids: 50
+  backgroundTilePrefab: {fileID: 5632592657020796212, guid: 4783b27af2b2afa4ba862da6915a6da0, type: 3}
+  numberOfAsteroids: 75
   asteroidSpawnRadius: 30
   asteroidDestructionRadius: 40
   asteroidSpriteListA: []

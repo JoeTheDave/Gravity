@@ -9,8 +9,8 @@ public class Ship : MonoBehaviour, ICollidable
     ParticleSystem velocityDamperEnergyField;
     float particleBuffer = 0f;
 
-    float rotationSpeed = 360f;
-    float acceleration = 10f;
+    float rotationSpeed = 180f;
+    float acceleration = 5f;
     // float terminalVelocity = 6f;
 
     float xPosition;
@@ -93,7 +93,7 @@ public class Ship : MonoBehaviour, ICollidable
         }
     }
 
-    float mass = 10000f;
+    float mass = 5000000f;
     public float Mass {
         get {
             return mass;
