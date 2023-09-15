@@ -153,9 +153,23 @@ public class GameData : MonoBehaviour
             asteroid.Trajectory = Random.Range(direction - 30, direction + 30);
             asteroid.Velocity = Random.Range(0.5f, 4f);
             asteroid.Size = Random.Range(0.25f, 2f);
+            asteroid.UpdateMassRelativeToSize();
             asteroid.Rotation = Random.Range(-45f, 45f);
             asteroid.ToggleParticleTrail(main.debug);
             Asteroids.Add(asteroid);
+        }
+    }
+
+    public void DestroyMarkedAsteroids() {
+        List<Asteroid> markedAsteroids = new List<Asteroid>();
+        foreach (Asteroid ast in Asteroids) {
+            if (ast.ShouldDestroy) {
+                markedAsteroids.Add(ast);
+            }
+        }
+        foreach (Asteroid ast in markedAsteroids) {
+            Asteroids.Remove(ast);
+            ast.Destruct();
         }
     }
 
@@ -172,6 +186,32 @@ public class GameData : MonoBehaviour
 
     void CreatePlayerShip() {
         playerShip = Instantiate(main.playerShipPrefab).GetComponent<Ship>();
+        playerShip.Mass = 5000000f;
+        playerShip.Size = 1f;
+    }
+
+    // Bullets
+    List<Bullet> bullets;
+    public List<Bullet> Bullets {
+        get {
+            return bullets;
+        }
+        set {
+            bullets = value;
+        }
+    }
+
+    public void DestroyMarkedBullets() {
+        List<Bullet> markedBullets = new List<Bullet>();
+        foreach (Bullet bullet in Bullets) {
+            if (bullet.ShouldDestroy) {
+                markedBullets.Add(bullet);
+            }
+        }
+        foreach (Bullet bullet in markedBullets) {
+            Bullets.Remove(bullet);
+            bullet.Destruct();
+        }
     }
 
     // Collisions
@@ -179,7 +219,7 @@ public class GameData : MonoBehaviour
         return new float[] {v[0] * Mathf.Cos(theta) - v[1] * Mathf.Sin(theta), v[0] * Mathf.Sin(theta) + v[1] * Mathf.Cos(theta)};
     }
 
-    void CollisionEffect(ICollidable collidable1, ICollidable collidable2) {
+    void CollisionEffect(Collidable collidable1, Collidable collidable2) {
         float m1 = collidable1.Mass;
         float m2 = collidable2.Mass;
         float theta = -Mathf.Atan2(collidable2.YPosition - collidable1.YPosition, collidable2.XPosition - collidable1.XPosition);
@@ -210,6 +250,7 @@ public class GameData : MonoBehaviour
                     instance.asteroidSpriteListA = new List<Sprite>();
                     instance.asteroidSpriteListB = new List<Sprite>();
                     instance.asteroids = new List<Asteroid>();
+                    instance.bullets = new List<Bullet>();
                 }
             }
             return instance;
@@ -239,22 +280,22 @@ public class GameData : MonoBehaviour
             ast.AdvancePosition(delta);
         }
         PlayerShip.AdvancePosition(delta);
+        foreach (Bullet bullet in Bullets) {
+            bullet.AdvancePosition(delta);
+        }
 
-        // Destroy stray asteroids
-        List<Asteroid> destroyedAsteroids = new List<Asteroid>();
+        // Mark stray asteroids for destruction
         foreach (Asteroid ast in Asteroids) {
             if (ast.DistanceFrom(playerShip) > AsteroidDestructionRadius) {
-                destroyedAsteroids.Add(ast);
+                ast.ShouldDestroy = true;
             }
         }
-        foreach (Asteroid ast in destroyedAsteroids) {
-            ast.Destruct();
-            asteroids.Remove(ast);
-        }
 
-        // Add Asteroids to specified amount
-        if (Asteroids.Count < NumberOfAsteroids) {
-            CreateAsteroid();
+        // Mark stray bullets for destruction
+        foreach (Bullet bullet in Bullets) {
+            if (bullet.DistanceFrom(playerShip) > AsteroidDestructionRadius) {
+                bullet.ShouldDestroy = true;
+            }
         }
 
         // Determine Collisions
@@ -267,9 +308,24 @@ public class GameData : MonoBehaviour
             if (Asteroids[i].isCollidingWith(PlayerShip, 1f)) {
                 CollisionEffect(Asteroids[i], PlayerShip);
             }
+            for (int j = 0; j < Bullets.Count; j++) {
+                if (Asteroids[i].isCollidingWith(Bullets[j], 0.8f)) {
+                    CollisionEffect(Asteroids[i], Bullets[j]);
+                    Bullets[j].ShouldDestroy = true;
+                }
+            }
         }
 
-        //Background
+        // Background
         UpdateGameTilesFromPlayerPosition();
+
+        // Clean up destroyed objects
+        DestroyMarkedAsteroids();
+        DestroyMarkedBullets();
+
+        // Add Asteroids to specified amount
+        if (Asteroids.Count < NumberOfAsteroids) {
+            CreateAsteroid();
+        }
     }
 }

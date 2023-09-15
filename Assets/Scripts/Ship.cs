@@ -2,106 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ship : MonoBehaviour, ICollidable
-{
+public class Ship : Collidable {
+
+    // Reference to Main script
+    Main main;
+
     // Particle related
     ParticleSystem engineExhaust;
     ParticleSystem velocityDamperEnergyField;
     float particleBuffer = 0f;
 
+    // Navigation
     float rotationSpeed = 180f;
     float acceleration = 5f;
-    // float terminalVelocity = 6f;
-
-    float xPosition;
-    public float XPosition {
-        get {
-            return xPosition;
-        }
-        set {
-            xPosition = value;
-            Vector3 position = this.gameObject.transform.position;
-            position.x = value;
-            transform.position = position;
-        }
-    }
-
-    float yPosition;
-    public float YPosition {
-        get {
-            return yPosition;
-        }
-        set {
-            yPosition = value;
-            Vector3 position = this.gameObject.transform.position;
-            position.y = value;
-            transform.position = position;
-        }
-    }
-
-    float velocity;
-    public float Velocity {
-        get {
-            return velocity;
-        }
-        set {
-            velocity = value;
-            UpdateComponentVelocitiesFromPolarVector();
-        }
-    }
-
-    float trajectory;
-    public float Trajectory {
-        get {
-            return trajectory;
-        }
-        set {
-            trajectory = value;
-            UpdateComponentVelocitiesFromPolarVector();
-        }
-    }
-
-    float xVelocity;
-    public float XVelocity {
-        get {
-            return xVelocity;
-        }
-        set {
-            xVelocity = value;
-            UpdatePolarVectorFromComponentVelocities();
-        }
-    }
-
-    float yVelocity;
-    public float YVelocity {
-        get {
-            return yVelocity;
-        }
-        set {
-            yVelocity = value;
-            UpdatePolarVectorFromComponentVelocities();
-        }
-    }
-
-    float size = 1f;
-    public float Size {
-        get {
-            return size;
-        }
-        set {
-            size = value;
-        }
-    }
-
-    float mass = 5000000f;
-    public float Mass {
-        get {
-            return mass;
-        }
-        set {
-            mass = value;
-        }
-    }
 
     float direction;
     public float Direction {
@@ -114,65 +27,41 @@ public class Ship : MonoBehaviour, ICollidable
         }
     }
 
-    void UpdateComponentVelocitiesFromPolarVector() {
-        xVelocity = Mathf.Cos(trajectory * Mathf.Deg2Rad) * velocity;
-        yVelocity = Mathf.Sin(trajectory * Mathf.Deg2Rad) * velocity;
-    }
-
-    void UpdatePolarVectorFromComponentVelocities() {
-        trajectory = Mathf.Atan2(YVelocity, XVelocity) * Mathf.Rad2Deg;
-        velocity = Mathf.Sqrt(Mathf.Pow(xVelocity, 2) + Mathf.Pow(yVelocity, 2));
-    }
-
     void ApplyThrust(float delta) {
         float xThrust = Mathf.Cos(direction * Mathf.Deg2Rad) * acceleration * delta;
         float yThrust = Mathf.Sin(direction * Mathf.Deg2Rad) * acceleration * delta;
         XVelocity += xThrust;
         YVelocity += yThrust;
-        // TODO: account for terminal velocity
+
     }
 
     void DamperVelocity(float delta) {
-        float vel = velocity - acceleration * delta;
+        float vel = Velocity - acceleration * delta;
         if (vel < 0) {
             vel = 0;
         }
         Velocity = vel;
     }
 
-    public void AdvancePosition(float delta) {
-        xPosition += xVelocity * delta;
-        yPosition += yVelocity * delta;
-        Vector3 position = this.gameObject.transform.position;
-        position.x = xPosition;
-        position.y = yPosition;
-        transform.position = position;
+    void ShootCannon() {
+        Bullet bullet = Instantiate(main.bulletPrefab).GetComponent<Bullet>();
+        bullet.Mass = 10000f;
+        bullet.Trajectory = Direction + Random.Range(-5f, 5f);;
+        bullet.Velocity = 50f;
+        bullet.XPosition = XPosition;
+        bullet.YPosition = YPosition;
+        GameData.Instance.Bullets.Add(bullet);
     }
 
-    public float DistanceFrom(ICollidable other) {
-        return Mathf.Sqrt(Mathf.Pow(other.XPosition - this.XPosition, 2) + Mathf.Pow(other.YPosition - this.YPosition, 2));
-    }
-
-    public float DistanceFrom(float x, float y) {
-        return Mathf.Sqrt(Mathf.Pow(x - this.XPosition, 2) + Mathf.Pow(y - this.YPosition, 2));        
-    }
-
-    public bool isCollidingWith(ICollidable other, float sizeCoefficient) {
-        float distance = DistanceFrom(other);
-        float radii = (this.Size + other.Size) / 2f * sizeCoefficient;
-        return distance < radii;
-    }
-
-    // Constructor
-    public Ship()
-    {
-        velocity = 0f;
-        trajectory = 0f;
-        xVelocity = 0f;
-        yVelocity = 0f;
+    void Awake() {
+        Velocity = 0f;
+        Trajectory = 0f;
+        XVelocity = 0f;
+        YVelocity = 0f;
     }
 
     void Start() {
+        main = GameObject.Find("Game").GetComponent<Main>();
         engineExhaust = GameObject.Find("Thruster").GetComponent<ParticleSystem>();
         velocityDamperEnergyField = GameObject.Find("Damper").GetComponent<ParticleSystem>();
     }
@@ -202,7 +91,7 @@ public class Ship : MonoBehaviour, ICollidable
             DamperVelocity(delta);
         }
         if (Input.GetKey(KeyCode.Space)) {
-            Debug.Log("Fire Weapon");
+            ShootCannon();
         }
     }
 }
