@@ -67,8 +67,8 @@ public class GameData : MonoBehaviour
             for (int y  = 0; y <= 2; y++) {
                 GameObject tile = GameData.Instance.BackgroundTiles[x * 3 + y];
                 Vector3 position = tile.transform.position;
-                position.x = (x - 1 + Mathf.Floor(PlayerShip.XPosition / 40)) * 40f;
-                position.y = (y - 1 + Mathf.Floor(PlayerShip.YPosition / 40)) * 40f;
+                position.x = (Mathf.Floor((PlayerShip.XPosition + 20) / 40f) + x - 1) * 40f;
+                position.y = (Mathf.Floor((PlayerShip.YPosition + 20) / 40f) + y - 1) * 40f;
                 tile.transform.position = position;
             }
         }
