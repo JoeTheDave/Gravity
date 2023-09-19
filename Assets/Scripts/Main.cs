@@ -16,11 +16,13 @@ public class Main : MonoBehaviour
     [SerializeField] int numberOfAsteroids;
     [SerializeField] float asteroidSpawnRadius;
     [SerializeField] float asteroidDestructionRadius;
+    [SerializeField] public bool inertiaDamper;
 
     void InjectConstantValuesFromSerializedFields() {
         GameData.Instance.NumberOfAsteroids = numberOfAsteroids;
         GameData.Instance.AsteroidSpawnRadius = asteroidSpawnRadius;
         GameData.Instance.AsteroidDestructionRadius = asteroidDestructionRadius;
+        GameData.Instance.InertiaDamper = inertiaDamper;
     }
 
     void Start() {

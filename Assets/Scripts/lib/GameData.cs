@@ -38,6 +38,16 @@ public class GameData : MonoBehaviour
         }
     }
 
+    bool inertiaDamper;
+    public bool InertiaDamper {
+        get {
+            return inertiaDamper;
+        }
+        set {
+            inertiaDamper = value;
+        }
+    }
+
     // Background Tiles
     List<GameObject> backgroundTiles;
     public List<GameObject> BackgroundTiles {

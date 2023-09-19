@@ -3,7 +3,9 @@
 A game exploring the Unity gaming engine and hand spun physics.
 
 #### TODO:
+
 - [ ] Sound effects
+- [ ] Gun should be on a turret that follows the mouse cursor
 - [ ] Particle explosions on collisions
 - [ ] Damper should apply outward force against asteroids as well.
 - [ ] Bug: Astroid collision intersections sometimes cause asteroids to clump together

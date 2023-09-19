@@ -35,8 +35,8 @@ public class Ship : Collidable {
 
     }
 
-    void DamperVelocity(float delta) {
-        float vel = Velocity - acceleration * delta;
+    void DamperVelocity(float delta, float force) {
+        float vel = Velocity - force * delta;
         if (vel < 0) {
             vel = 0;
         }
@@ -88,10 +88,13 @@ public class Ship : Collidable {
                 velocityDamperEnergyField.Emit(50);
                 particleBuffer -= 0.05f;
             }
-            DamperVelocity(delta);
+            DamperVelocity(delta, acceleration * 2);
         }
         if (Input.GetKey(KeyCode.Space)) {
             ShootCannon();
+        }
+        if (GameData.Instance.InertiaDamper) {
+            DamperVelocity(delta, acceleration * 0.3f);
         }
     }
 }
